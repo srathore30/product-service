@@ -1,4 +1,4 @@
-package sfa.order_service.entity;
+package sfa.product_service.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

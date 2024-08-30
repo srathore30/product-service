@@ -1,10 +1,10 @@
-package sfa.order_service;
+package sfa.product_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OrderApplicationTests {
+class ProductApplicationTests {
 
 	@Test
 	void contextLoads() {

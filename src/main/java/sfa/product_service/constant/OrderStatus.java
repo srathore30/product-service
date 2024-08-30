@@ -1,4 +1,4 @@
-package sfa.order_service.constant;
+package sfa.product_service.constant;
 
 public enum OrderStatus {
     CREATED,
