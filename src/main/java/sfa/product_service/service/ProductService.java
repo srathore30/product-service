@@ -117,7 +117,7 @@ public class ProductService {
         productPriceRes.setRetailerPrice(productPrice.getRetailerPrice());
         productPriceRes.setWarehousePrice(productPrice.getRetailerPrice());
         productPriceRes.setStockListPrice(productPrice.getStockListPrice());
-        productPriceRes.setGstPercentage(productPriceRes.getGstPercentage());
+        productPriceRes.setGstPercentage(productPrice.getGst());
         return productPriceRes;
     }
 

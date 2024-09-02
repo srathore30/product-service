@@ -1,4 +1,4 @@
-package sfa.product_service.constant;
+package sfa.product_service.enums;
 
 public enum SalesLevelConstant {
     WAREHOUSE,

@@ -16,7 +16,6 @@ import sfa.product_service.service.ProductService;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
-
     @PostMapping
     public ResponseEntity<ProductCreateRes> createProduct(@RequestBody ProductReq productReq) {
         ProductCreateRes productCreateRes = productService.createProduct(productReq);
@@ -26,12 +25,12 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
-        return new ResponseEntity<>(productRes, HttpStatus.CREATED);
+        return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductCreateRes> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateReq productUpdateReq) {
         ProductCreateRes productRes = productService.updateProduct(id, productUpdateReq);
-        return new ResponseEntity<>(productRes, HttpStatus.CREATED);
+        return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 }
