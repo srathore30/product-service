@@ -1,6 +1,6 @@
 package sfa.product_service.enums;
 
-public enum SalesLevelConstant {
+public enum SalesLevel {
     WAREHOUSE,
     STOCKIST,
     RETAILER;
