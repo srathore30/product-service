@@ -14,8 +14,8 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "product_price_table")
 public class ProductPriceEntity extends BaseEntity{
     Long productId;
-    Float wareHousePrice;
-    Float stockListPrice;
-    Float retailerPrice;
-    Float gst;
+    Double wareHousePrice;
+    Double stockListPrice;
+    Double retailerPrice;
+    Double gst;
 }

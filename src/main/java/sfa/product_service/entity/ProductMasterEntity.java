@@ -4,8 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import sfa.product_service.constant.OrderStatus;
-import sfa.product_service.constant.SalesLevelConstant;
 
 @Getter
 @Setter
