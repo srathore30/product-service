@@ -29,7 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/getByIdAndPriceType/{id}")
-    public ResponseEntity<Double> getProductByIdAndPriceType(@PathVariable Long id, @RequestParam String priceType) {
+    public ResponseEntity<Float> getProductByIdAndPriceType(@PathVariable Long id, @RequestParam String priceType) {
         return new ResponseEntity<>(productService.getProductPriceByIdAndType(id, priceType), HttpStatus.OK);
     }
 
