@@ -8,6 +8,7 @@ import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;
 import sfa.product_service.dto.response.ProductCreateRes;
 import sfa.product_service.dto.response.ProductRes;
+import sfa.product_service.interceptor.UserAuthorization;
 import sfa.product_service.service.ProductService;
 
 @RestController
@@ -17,23 +18,27 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
+    @UserAuthorization
     public ResponseEntity<ProductCreateRes> createProduct(@RequestBody ProductReq productReq) {
         ProductCreateRes productCreateRes = productService.createProduct(productReq);
         return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
+    @UserAuthorization
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 
     @GetMapping("/getByIdAndPriceType/{id}")
+    @UserAuthorization
     public ResponseEntity<Float> getProductByIdAndPriceType(@PathVariable Long id, @RequestParam String priceType) {
         return new ResponseEntity<>(productService.getProductPriceByIdAndType(id, priceType), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
+    @UserAuthorization
     public ResponseEntity<ProductCreateRes> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateReq productUpdateReq) {
         ProductCreateRes productRes = productService.updateProduct(id, productUpdateReq);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
