@@ -12,8 +12,8 @@ public class ProductUpdateReq {
     String name;
     String sku;
     String unitOfMeasurement;
-    float warehousePrice;
-    float stockListPrice;
-    float retailerPrice;
-    float gstPercentage;
+    Double warehousePrice;
+    Double stockListPrice;
+    Double retailerPrice;
+    Double gstPercentage;
 }

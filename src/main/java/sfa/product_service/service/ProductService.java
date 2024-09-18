@@ -118,7 +118,7 @@ public class ProductService {
         return productPriceRes;
     }
 
-    public float getProductPriceByIdAndType(Long id, String priceType) {
+    public Double getProductPriceByIdAndType(Long id, String priceType) {
         Optional<ProductMasterEntity> optionalProductMasterEntity = productMasterRepo.findById(id);
         if (optionalProductMasterEntity.isEmpty()) {
             throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorMessage());
