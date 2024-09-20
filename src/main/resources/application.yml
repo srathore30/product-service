@@ -27,6 +27,12 @@ application:
   config:
     trace: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
 validate:
   token:
     url: http://localhost:9094/auth-service/auth/validateToken?token=

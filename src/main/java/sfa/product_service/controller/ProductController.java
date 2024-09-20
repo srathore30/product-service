@@ -18,27 +18,27 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    @UserAuthorization
+//    @UserAuthorization
     public ResponseEntity<ProductCreateRes> createProduct(@RequestBody ProductReq productReq) {
         ProductCreateRes productCreateRes = productService.createProduct(productReq);
         return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    @UserAuthorization
+//    @UserAuthorization
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 
     @GetMapping("/getByIdAndPriceType/{id}")
-    @UserAuthorization
+//    @UserAuthorization
     public ResponseEntity<Double> getProductByIdAndPriceType(@PathVariable Long id, @RequestParam String priceType) {
         return new ResponseEntity<>(productService.getProductPriceByIdAndType(id, priceType), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    @UserAuthorization
+//    @UserAuthorization
     public ResponseEntity<ProductCreateRes> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateReq productUpdateReq) {
         ProductCreateRes productRes = productService.updateProduct(id, productUpdateReq);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
