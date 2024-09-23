@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/pro_product
     username: root
-    password: root
+    password: 14640548root
 
   jpa:
     hibernate:
@@ -29,4 +29,4 @@ application:
 
 validate:
   token:
-    url: http://localhost:9094/auth-service/auth/validateToken?token=
+    url: http://localhost:8080/validateToken?token=
