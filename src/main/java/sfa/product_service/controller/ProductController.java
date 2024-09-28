@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sfa.product_service.AuthUtils.JwtHelper;
+import sfa.product_service.constant.UserRole;
 import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;
 import sfa.product_service.dto.response.ProductCreateRes;
@@ -18,14 +20,13 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-//    @UserAuthorization
+    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
     public ResponseEntity<ProductCreateRes> createProduct(@RequestBody ProductReq productReq) {
         ProductCreateRes productCreateRes = productService.createProduct(productReq);
         return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
     }
-
     @GetMapping("/{id}")
-//    @UserAuthorization
+    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
