@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ProductPriceRepo extends JpaRepository<ProductPriceEntity, Long> {
     Optional<ProductPriceEntity> findByProductId(Long productId);
+
     @Query("SELECT p FROM ProductPriceEntity p WHERE p.productId = :productId AND (p.wareHousePrice = :price OR p.stockListPrice = :price OR p.retailerPrice = :price)")
     Optional<ProductPriceEntity> findByPriceFilters(@Param("productId") Long productId, @Param("price") Double price);
-
 }

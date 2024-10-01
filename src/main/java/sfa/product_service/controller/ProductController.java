@@ -8,6 +8,7 @@ import sfa.product_service.AuthUtils.JwtHelper;
 import sfa.product_service.constant.UserRole;
 import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;
+import sfa.product_service.dto.response.PaginatedResp;
 import sfa.product_service.dto.response.ProductCreateRes;
 import sfa.product_service.dto.response.ProductRes;
 import sfa.product_service.interceptor.UserAuthorization;
@@ -20,13 +21,13 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
+//    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
     public ResponseEntity<ProductCreateRes> createProduct(@RequestBody ProductReq productReq) {
         ProductCreateRes productCreateRes = productService.createProduct(productReq);
         return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
     }
     @GetMapping("/{id}")
-    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
+//    @UserAuthorization(allowedRoles = {UserRole.Create_Manager})
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
@@ -43,5 +44,16 @@ public class ProductController {
     public ResponseEntity<ProductCreateRes> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateReq productUpdateReq) {
         ProductCreateRes productRes = productService.updateProduct(id, productUpdateReq);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<PaginatedResp<ProductRes>> getAllProduct(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdDate") String sortBy, @RequestParam(defaultValue = "desc") String sortDirection) {
+        return new ResponseEntity<>(productService.getAllProduct(page, pageSize, sortBy, sortDirection), HttpStatus.OK);
+    }
+    @DeleteMapping("/{id}")
+//    @UserAuthorization
+    public ResponseEntity<String> deleteProduct(@RequestParam String type,@PathVariable Long id) {
+        productService.deleteProduct(type,id);
+        return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
 }
