@@ -3,10 +3,15 @@ package sfa.product_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sfa.product_service.constant.ApiErrorCodes;
 import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;
+import sfa.product_service.dto.response.PaginatedResp;
 import sfa.product_service.dto.response.ProductCreateRes;
 import sfa.product_service.dto.response.ProductPriceRes;
 import sfa.product_service.dto.response.ProductRes;
@@ -17,6 +22,8 @@ import sfa.product_service.exception.NoSuchElementFoundException;
 import sfa.product_service.repo.ProductMasterRepo;
 import sfa.product_service.repo.ProductPriceRepo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -136,5 +143,34 @@ public class ProductService {
             default ->
                     throw new InvalidInputException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), ApiErrorCodes.INVALID_INPUT.getErrorMessage());
         };
+    }
+
+    public PaginatedResp<ProductRes> getAllProduct(int page, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+        Page<ProductMasterEntity> productMasterEntities = productMasterRepo.findAll(pageable);
+        List<ProductRes> productResList=new ArrayList<>();
+        productMasterEntities.getContent().forEach(productMasterEntity -> {
+            Optional<ProductPriceEntity> optionalProductPriceEntity = productPriceRepo.findByProductId(productMasterEntity.getId());
+            if (optionalProductPriceEntity.isEmpty()) {
+                throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage());
+            }
+            ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
+            ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
+          productResList.add(productRes);
+        });
+        return new PaginatedResp<>(productMasterEntities.getTotalElements(), productMasterEntities.getTotalPages(), productMasterEntities.getNumber(), productResList);
+    }
+
+    public void deleteProduct(String type,Long id) {
+        if (type.equalsIgnoreCase("price")) {
+            productPriceRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage()));
+            productPriceRepo.deleteById(id);
+        } else if (type.equalsIgnoreCase("master")) {
+            productMasterRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorMessage()));
+            productMasterRepo.deleteById(id);
+        }else {
+            throw new InvalidInputException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), ApiErrorCodes.INVALID_INPUT.getErrorMessage());
+        }
     }
 }
