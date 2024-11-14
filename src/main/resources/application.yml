@@ -3,6 +3,11 @@ spring:
     url: jdbc:mysql://api.prism-sfa-dev.net:3306/sfa_db
     username: PrismSfa
     password: TestUser123!
+    hikari:
+      connection-timeout: 60000          # 1 minute
+      max-lifetime: 1800000              # 30 minutes
+      idle-timeout: 300000               # 5 minutes
+      maximum-pool-size: 10              # Adjust based on application needs
 
   jpa:
     hibernate:

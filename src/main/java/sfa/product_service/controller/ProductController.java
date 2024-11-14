@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sfa.product_service.AuthUtils.JwtHelper;
 import sfa.product_service.constant.UserRole;
 import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;

@@ -1,25 +1,15 @@
 package sfa.product_service.interceptor;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sfa.product_service.AuthUtils.JwtHelper;
-import sfa.product_service.constant.ApiErrorCodes;
 import sfa.product_service.constant.UserRole;
-import sfa.product_service.exception.InvalidInputException;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
