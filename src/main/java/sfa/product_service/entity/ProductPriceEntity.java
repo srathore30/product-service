@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import sfa.product_service.constant.Status;
 
 @Getter
 @Setter
@@ -17,5 +18,6 @@ public class ProductPriceEntity extends BaseEntity{
     Double wareHousePrice;
     Double stockListPrice;
     Double retailerPrice;
+    Status status;
     Double gst;
 }
