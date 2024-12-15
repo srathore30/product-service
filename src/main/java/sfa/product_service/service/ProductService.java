@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sfa.product_service.constant.ApiErrorCodes;
+import sfa.product_service.constant.Status;
 import sfa.product_service.dto.request.ProductReq;
 import sfa.product_service.dto.request.ProductUpdateReq;
 import sfa.product_service.dto.response.PaginatedResp;
@@ -151,24 +152,27 @@ public class ProductService {
         Page<ProductMasterEntity> productMasterEntities = productMasterRepo.findAll(pageable);
         List<ProductRes> productResList=new ArrayList<>();
         productMasterEntities.getContent().forEach(productMasterEntity -> {
-            Optional<ProductPriceEntity> optionalProductPriceEntity = productPriceRepo.findByProductId(productMasterEntity.getId());
-            if (optionalProductPriceEntity.isEmpty()) {
-                throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage());
+            if(productMasterEntity.getStatus() == Status.ACTIVE) {
+                Optional<ProductPriceEntity> optionalProductPriceEntity = productPriceRepo.findByProductId(productMasterEntity.getId());
+                if(optionalProductPriceEntity.get().getStatus() == Status.ACTIVE) {
+                    ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
+                    ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
+                    productResList.add(productRes);
+                }
             }
-            ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
-            ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
-          productResList.add(productRes);
         });
         return new PaginatedResp<>(productMasterEntities.getTotalElements(), productMasterEntities.getTotalPages(), productMasterEntities.getNumber(), productResList);
     }
 
     public void deleteProduct(String type,Long id) {
         if (type.equalsIgnoreCase("price")) {
-            productPriceRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage()));
-            productPriceRepo.deleteById(id);
+            ProductPriceEntity productPriceEntity = productPriceRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage()));
+            productPriceEntity.setStatus(Status.INACTIVE);
+            productPriceRepo.save(productPriceEntity);
         } else if (type.equalsIgnoreCase("master")) {
-            productMasterRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorMessage()));
-            productMasterRepo.deleteById(id);
+            ProductMasterEntity productMasterEntity = productMasterRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorMessage()));
+            productMasterEntity.setStatus(Status.INACTIVE);
+            productMasterRepo.save(productMasterEntity);
         }else {
             throw new InvalidInputException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), ApiErrorCodes.INVALID_INPUT.getErrorMessage());
         }

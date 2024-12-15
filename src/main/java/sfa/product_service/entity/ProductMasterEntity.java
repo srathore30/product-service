@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import sfa.product_service.constant.Status;
 
 @Getter
 @Setter
@@ -15,5 +16,6 @@ import lombok.experimental.FieldDefaults;
 public class ProductMasterEntity extends BaseEntity{
     String name;
     String sku;
+    Status status;
     String unitMeasurement;
 }
