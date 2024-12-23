@@ -37,7 +37,11 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /api-docs
-
+aws:
+  access-key-id: AKIAT7IY7ULMRZY6LX6B
+  secret-access-key: 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
+  bucket: prismsfa-bucket
+  region: ap-south-1
   spring:
     mvc:
       cors:

@@ -13,9 +13,11 @@ import sfa.product_service.constant.Status;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "product_master_table")
-public class ProductMasterEntity extends BaseEntity{
+public class ProductMasterEntity extends BaseEntity {
     String name;
     String sku;
     Status status;
     String unitMeasurement;
+    Double bundleSize;
+    String imageUrl;
 }

@@ -1,13 +1,18 @@
 package sfa.product_service.service;
 
+import com.amazonaws.HttpMethod;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import sfa.product_service.constant.ApiErrorCodes;
 import sfa.product_service.constant.Status;
 import sfa.product_service.dto.request.ProductReq;
@@ -22,15 +27,28 @@ import sfa.product_service.exception.InvalidInputException;
 import sfa.product_service.exception.NoSuchElementFoundException;
 import sfa.product_service.repo.ProductMasterRepo;
 import sfa.product_service.repo.ProductPriceRepo;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ProductService {
+    @Value("${aws.access-key-id}")
+    private String accessKeyId;
+    @Value("${aws.secret-access-key}")
+    private String secretAccessKey;
+
+    @Value("${aws.bucket}")
+    private String bucketName;
+    @Autowired
+    private AmazonS3 amazonS3;
     private final ProductMasterRepo productMasterRepo;
     private final ProductPriceRepo productPriceRepo;
     Double price;
@@ -42,8 +60,9 @@ public class ProductService {
         ProductPriceEntity productPriceEntity = mapToProductPriceEntity(request);
         ProductMasterEntity savedProduct = productMasterRepo.save(productMasterEntity);
         productPriceEntity.setProductId(savedProduct.getId());
+        productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
         productPriceRepo.save(productPriceEntity);
-        return new ProductCreateRes(savedProduct.getId(), "Product created successfully");
+        return new ProductCreateRes(savedProduct.getId(),savedProduct.getImageUrl(), "Product created successfully");
     }
 
     public ProductRes getProductById(Long id) {
@@ -74,7 +93,7 @@ public class ProductService {
         updateProductPriceFromReq(request, productPriceEntity);
         productMasterRepo.save(productMasterEntity);
         productPriceRepo.save(productPriceEntity);
-        return new ProductCreateRes(productPriceEntity.getProductId(), "Product update successfully");
+        return new ProductCreateRes(productPriceEntity.getProductId(), productMasterEntity.getImageUrl(),   "Product update successfully");
     }
 
     private ProductMasterEntity mapToProductMasterEntity(ProductReq request) {
@@ -82,6 +101,7 @@ public class ProductService {
         productMasterEntity.setName(request.getName());
         productMasterEntity.setSku(request.getSku());
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
+        productMasterEntity.setBundleSize(request.getBundleSize());
         return productMasterEntity;
     }
 
@@ -89,6 +109,8 @@ public class ProductService {
         productMasterEntity.setName(request.getName());
         productMasterEntity.setSku(request.getSku());
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
+        productMasterEntity.setBundleSize(request.getBundleSize());
+        productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
     }
 
     private void updateProductPriceFromReq(ProductUpdateReq request, ProductPriceEntity productPriceEntity) {
@@ -176,5 +198,34 @@ public class ProductService {
         }else {
             throw new InvalidInputException(ApiErrorCodes.INVALID_INPUT.getErrorCode(), ApiErrorCodes.INVALID_INPUT.getErrorMessage());
         }
+    }
+    //Image Upload for product
+    public String uploadBase64File(String base64Url) {
+        byte[] fileBytes = Base64.getDecoder().decode(base64Url);
+        InputStream fileStream = new ByteArrayInputStream(fileBytes);
+
+        String key = System.currentTimeMillis() + ".jpg";
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(fileBytes.length);
+        metadata.setContentType("image/jpeg");
+
+        try {
+            amazonS3.putObject(bucketName, key, fileStream, metadata);
+        } catch (AmazonServiceException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AWS Service Error: " + e.getErrorMessage(), e);
+        } catch (AmazonClientException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AWS Client Error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading base64 file", e);
+        }
+
+        return getProSignedUrl(key, HttpMethod.GET);
+    }
+    public String getProSignedUrl(String filePath, HttpMethod httpMethod) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MINUTE, 10);
+        return amazonS3.generatePresignedUrl(bucketName, filePath, calendar.getTime(), httpMethod).toString();
     }
 }

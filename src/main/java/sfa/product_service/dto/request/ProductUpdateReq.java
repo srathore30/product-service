@@ -16,4 +16,6 @@ public class ProductUpdateReq {
     Double stockListPrice;
     Double retailerPrice;
     Double gstPercentage;
+    Double bundleSize;
+    String imageUrl;
 }

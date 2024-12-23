@@ -6,4 +6,5 @@ public enum UserRole {
     Delete_Manager,
     Manager,
     View_Manager,
+    ClientFMCG,
 }
