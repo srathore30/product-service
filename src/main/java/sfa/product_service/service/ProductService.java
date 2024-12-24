@@ -33,7 +33,9 @@ import sfa.product_service.repo.ProductMasterRepo;
 import sfa.product_service.repo.ProductPriceRepo;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 @Service
@@ -42,6 +44,7 @@ import java.util.*;
 public class ProductService {
     private final ProductMasterRepo productMasterRepo;
     private final ProductPriceRepo productPriceRepo;
+    public final String baseUrl = "https://prismsfa-bucket.s3.ap-south-1.amazonaws.com/";
     Double price;
     @Value("${aws.access-key-id}")
     private String accessKeyId;
@@ -62,11 +65,9 @@ public class ProductService {
         log.info("Product is ready to save on product master repo");
         ProductMasterEntity savedProduct = productMasterRepo.save(productMasterEntity);
         productPriceEntity.setProductId(savedProduct.getId());
-//        log.info("Product image is uploaded");
-//        productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
         log.info("Product is ready to save on price repo");
-        productPriceRepo.save(productPriceEntity);
-        return new ProductCreateRes(savedProduct.getId(), savedProduct.getImageUrl(), "Product created successfully");
+        ProductPriceEntity priceEntity = productPriceRepo.save(productPriceEntity);
+        return new ProductCreateRes(savedProduct.getId(), savedProduct.getImageUrl(),savedProduct.getBundleSize(), "Product created successfully");
     }
 
     public ProductRes getProductById(Long id) {
@@ -97,7 +98,7 @@ public class ProductService {
         updateProductPriceFromReq(request, productPriceEntity);
         productMasterRepo.save(productMasterEntity);
         productPriceRepo.save(productPriceEntity);
-        return new ProductCreateRes(productPriceEntity.getProductId(), productMasterEntity.getImageUrl(), "Product update successfully");
+        return new ProductCreateRes(productPriceEntity.getProductId(), productMasterEntity.getImageUrl(), productMasterEntity.getBundleSize(), "Product update successfully");
     }
 
     private ProductMasterEntity mapToProductMasterEntity(ProductReq request) {
@@ -107,6 +108,7 @@ public class ProductService {
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
         productMasterEntity.setBundleSize(request.getBundleSize());
         productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
+        productMasterEntity.setStatus(request.getStatus());
         return productMasterEntity;
     }
 
@@ -116,6 +118,7 @@ public class ProductService {
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
         productMasterEntity.setBundleSize(request.getBundleSize());
         productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
+        productMasterEntity.setStatus(request.getStatus());
     }
 
     private void updateProductPriceFromReq(ProductUpdateReq request, ProductPriceEntity productPriceEntity) {
@@ -141,6 +144,8 @@ public class ProductService {
         productRes.setSku(productMaster.getSku());
         productRes.setUnitOfMeasurement(productMaster.getUnitMeasurement());
         productRes.setProductPriceRes(mapToProductPriceRes(productPrice));
+        productRes.setBundleSize(productMaster.getBundleSize());
+        productRes.setImageUrl(productMaster.getImageUrl());
         return productRes;
     }
 
@@ -208,39 +213,32 @@ public class ProductService {
     //Image Upload for product
     public String uploadBase64File(String base64Url) {
         log.info("Decoded base64 file");
-        byte[] fileBytes = Base64.getDecoder().decode(base64Url);
-        log.info("Created input stream");
-        InputStream fileStream = new ByteArrayInputStream(fileBytes);
-        log.info("Prepare key that save in Database");
-        String keyPrefix = "AdminName";
+        byte[] fileBytes;
+        try {
+            fileBytes = Base64.getDecoder().decode(base64Url);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Base64 input", e);
+        }
+
+        String keyPrefix = "prism";
         String keySuffix = ".jpg";
-        String key = keyPrefix + UUID.randomUUID() + keySuffix;
+        String key = keyPrefix + UUID.randomUUID()+ keySuffix;
         log.info("Created key: {}", key);
-        log.info("Prepare Object Meta Data");
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(fileBytes.length);
         metadata.setContentType("image/jpeg");
-
-        try {
+        try (InputStream fileStream = new ByteArrayInputStream(fileBytes)) {
             log.info("Start uploading file");
             amazonS3.putObject(bucketName, key, fileStream, metadata);
             log.info("File uploaded successfully");
         } catch (AmazonServiceException e) {
+            log.error("AWS Service Error: {}", e.getErrorMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AWS Service Error: " + e.getErrorMessage(), e);
-        } catch (AmazonClientException e) {
+        } catch (AmazonClientException | IOException e) {
+            log.error("AWS Client Error: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "AWS Client Error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading base64 file", e);
         }
-
-        return key;
-    }
-
-    public String getProSignedUrl(String filePath, HttpMethod httpMethod) {
-        log.info("Pro signed url details");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.MINUTE, 10);
-        return amazonS3.generatePresignedUrl(bucketName, filePath, calendar.getTime(), httpMethod).toString();
+        log.info("Generating pre-signed URL");
+        return baseUrl+key;
     }
 }

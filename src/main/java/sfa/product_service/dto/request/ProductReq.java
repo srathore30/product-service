@@ -2,6 +2,7 @@ package sfa.product_service.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import sfa.product_service.constant.Status;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class ProductReq {
     Double gstPercentage;
     Double bundleSize;
     String imageUrl;
+    Status status;
 }

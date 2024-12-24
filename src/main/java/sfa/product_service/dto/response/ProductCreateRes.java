@@ -11,5 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class ProductCreateRes {
     Long productId;
     String imageUrl;
+    Double bundleSize;
     String message;
+
 }

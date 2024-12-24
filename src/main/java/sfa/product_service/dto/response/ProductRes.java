@@ -2,6 +2,8 @@ package sfa.product_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import sfa.product_service.constant.Status;
+
 @Getter
 @Setter
 @NoArgsConstructor
