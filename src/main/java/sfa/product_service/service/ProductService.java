@@ -117,7 +117,10 @@ public class ProductService {
         productMasterEntity.setSku(request.getSku());
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
         productMasterEntity.setBundleSize(request.getBundleSize());
-        productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
+        if (!Objects.equals(request.getImageUrl(), "")){
+            productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
+        }
+        productMasterEntity.setImageUrl(productMasterEntity.getImageUrl());
         productMasterEntity.setStatus(request.getStatus());
     }
 
