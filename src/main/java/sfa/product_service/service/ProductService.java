@@ -131,6 +131,7 @@ public class ProductService {
     private ProductPriceEntity mapToProductPriceEntity(ProductReq request) {
         ProductPriceEntity productPriceEntity = new ProductPriceEntity();
         productPriceEntity.setWareHousePrice(request.getWarehousePrice());
+        productPriceEntity.setStatus(Status.ACTIVE);
         productPriceEntity.setStockListPrice(request.getStockListPrice());
         productPriceEntity.setGst(request.getGstPercentage());
         productPriceEntity.setRetailerPrice(request.getRetailerPrice());
