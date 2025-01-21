@@ -13,6 +13,8 @@ import sfa.product_service.dto.response.ProductRes;
 import sfa.product_service.interceptor.UserAuthorization;
 import sfa.product_service.service.ProductService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
@@ -30,6 +32,12 @@ public class ProductController {
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {
         ProductRes productRes = productService.getProductById(id);
+        return new ResponseEntity<>(productRes, HttpStatus.OK);
+    }
+    @GetMapping("/getAllProductByIdList")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<List<ProductRes>> getAllProductByIdList(@RequestParam List<Long> productList) {
+        List<ProductRes> productRes = productService.getAllProductByIdList(productList);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 
