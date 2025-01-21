@@ -200,6 +200,22 @@ public class ProductService {
         return new PaginatedResp<>(productMasterEntities.getTotalElements(), productMasterEntities.getTotalPages(), productMasterEntities.getNumber(), productResList);
     }
 
+    public List<ProductRes> getAllProductByIdList(List<Long> productIdList) {
+        List<ProductMasterEntity> productMasterEntities = productMasterRepo.findAllById(productIdList);
+        List<ProductRes> productResList = new ArrayList<>();
+        productMasterEntities.forEach(productMasterEntity -> {
+            if (productMasterEntity.getStatus() == Status.ACTIVE) {
+                Optional<ProductPriceEntity> optionalProductPriceEntity = productPriceRepo.findByProductId(productMasterEntity.getId());
+                if (optionalProductPriceEntity.get().getStatus() == Status.ACTIVE) {
+                    ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
+                    ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
+                    productResList.add(productRes);
+                }
+            }
+        });
+        return productResList;
+    }
+
     public void deleteProduct(String type, Long id) {
         if (type.equalsIgnoreCase("price")) {
             ProductPriceEntity productPriceEntity = productPriceRepo.findById(id).orElseThrow(() -> new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage()));
