@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://api.prism-sfa-dev.net:3306/sfa_db
+    url: jdbc:mysql://api.prism-sfa-dev.net:3306/new_sfa_db
     username: PrismSfa
     password: TestUser123!
     hikari:
