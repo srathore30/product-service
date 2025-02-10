@@ -102,9 +102,14 @@ public class ProductService {
     }
 
     private ProductMasterEntity mapToProductMasterEntity(ProductReq request) {
+        Optional<ProductMasterEntity> optionalProductMasterEntity = productMasterRepo.findByProductCode(request.getProductCode());
+        if(optionalProductMasterEntity.isPresent()){
+            throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_CODE_ALREADY_EXIST.getErrorCode(), ApiErrorCodes.PRODUCT_CODE_ALREADY_EXIST.getErrorMessage());
+        }
         ProductMasterEntity productMasterEntity = new ProductMasterEntity();
         productMasterEntity.setName(request.getName());
         productMasterEntity.setSku(request.getSku());
+        productMasterEntity.setProductCode(request.getProductCode());
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
         productMasterEntity.setBundleSize(request.getBundleSize());
         productMasterEntity.setImageUrl(uploadBase64File(request.getImageUrl()));
@@ -114,6 +119,7 @@ public class ProductService {
 
     private void updateProductMasterFromReq(ProductUpdateReq request, ProductMasterEntity productMasterEntity) {
         productMasterEntity.setName(request.getName());
+        productMasterEntity.setProductCode(request.getProductCode());
         productMasterEntity.setSku(request.getSku());
         productMasterEntity.setUnitMeasurement(request.getUnitOfMeasurement());
         productMasterEntity.setBundleSize(request.getBundleSize());
@@ -145,6 +151,7 @@ public class ProductService {
         ProductRes productRes = new ProductRes();
         productRes.setName(productMaster.getName());
         productRes.setProductId(productMaster.getId());
+        productRes.setProductCode(productMaster.getProductCode());
         productRes.setSku(productMaster.getSku());
         productRes.setUnitOfMeasurement(productMaster.getUnitMeasurement());
         productRes.setProductPriceRes(mapToProductPriceRes(productPrice));

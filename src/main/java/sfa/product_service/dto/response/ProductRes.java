@@ -12,6 +12,7 @@ import sfa.product_service.constant.Status;
 public class ProductRes {
     String name;
     String sku;
+    String productCode;
     String unitOfMeasurement;
     Long productId;
     ProductPriceRes productPriceRes;

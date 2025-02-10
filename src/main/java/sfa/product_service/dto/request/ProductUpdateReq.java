@@ -14,6 +14,7 @@ public class ProductUpdateReq {
     String sku;
     String unitOfMeasurement;
     Double warehousePrice;
+    String productCode;
     Double stockListPrice;
     Double retailerPrice;
     Double gstPercentage;

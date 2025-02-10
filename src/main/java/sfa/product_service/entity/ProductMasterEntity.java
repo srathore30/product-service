@@ -17,6 +17,7 @@ public class ProductMasterEntity extends BaseEntity {
     String name;
     String sku;
     Status status;
+    String productCode;
     String unitMeasurement;
     Double bundleSize;
     String imageUrl;

@@ -13,6 +13,7 @@ public class ProductReq {
     String name;
     String sku;
     String unitOfMeasurement;
+    String productCode;
     Double warehousePrice;
     Double stockListPrice;
     Double retailerPrice;
