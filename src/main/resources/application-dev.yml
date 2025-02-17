@@ -1,0 +1,5 @@
+DB_USERNAME: PrismSFA
+DB_URL: jdbc:mysql://staging.prism-sfa-dev.net:3306/sfa_db
+DB_PASSWORD: PrismSFA123_
+REST_URI: /api
+
