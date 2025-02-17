@@ -10,5 +10,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductCreateRes {
     Long productId;
+    String imageUrl;
+    Double bundleSize;
     String message;
+
 }
