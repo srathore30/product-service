@@ -1,8 +1,10 @@
 spring:
+  profiles:
+    active: dev
   datasource:
-    url: jdbc:mysql://api.prism-sfa-dev.net:3306/new_sfa_db
-    username: PrismSfa
-    password: TestUser123!
+    username: ${DB_USERNAME}
+    url: ${DB_URL}
+    password: ${DB_PASSWORD}
     hikari:
       connection-timeout: 60000          # 1 minute
       max-lifetime: 1800000              # 30 minutes

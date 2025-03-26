@@ -1,0 +1,4 @@
+DB_USERNAME: PrismSfa
+DB_URL: jdbc:mysql://api.prism-sfa-dev.net:3306/sfa_db
+DB_PASSWORD: TestUser123!
+REST_URI: /api
