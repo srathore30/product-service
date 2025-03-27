@@ -1,0 +1,110 @@
+name: Deploy Product Service to VPS
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      USERNAME: ${{ secrets.USERNAME }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Print working directory
+        run: |
+          pwd
+          ls -la
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Product Service (Maven)
+        run: mvn clean package -DskipTests
+
+      - name: List built artifacts
+        run: ls -la target/
+
+      - name: Upload JAR as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-file
+          path: target/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-file
+          path: jar-file/
+
+      - name: Deploy JAR to VPS
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: "jar-file/*.jar"
+          target: "~/sfa-service/product-service/"
+
+      - name: Remove Old JAR and Deploy New One
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ~/sfa-service/product-service/
+            echo "Removing old JAR..."
+            rm -f *.jar
+            echo "Moving new JAR..."
+            mv ~/sfa-service/product-service/jar-file/*.jar ~/sfa-service/product-service/
+            rm -rf ~/sfa-service/product-service/jar-file/
+
+      - name: Run Deployment Script on VPS
+        uses: appleboy/ssh-action@v0.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd ~/sfa-service/product-service/
+            echo "Checking if service is running..."
+            PID=$(sudo lsof -n -i:9093 | awk 'NR==2 {print $2}')
+            if [ -n "$PID" ]; then
+              echo "Killing running service with PID: $PID"
+              sudo kill -9 $PID
+            else
+              echo "No service running on port 9093"
+            fi
+            echo "Setting execution permission..."
+            export JAVA_HOME=/usr/local/java/jdk-17.0.12
+            export PATH=$JAVA_HOME/bin:$PATH
+            cd ~/sfa-service/product-service/
+            chmod +x productStartUp.sh
+            echo "Starting the service..."
+            nohup ./productStartUp.sh > app.log 2>&1 &
+            echo "Streaming logs..."
+            touch app.log
+            tail -f app.log | while read LINE; do
+              echo "$LINE"
+              if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/product-service'"* ]]; then
+                echo "Detected Tomcat startup, stopping log streaming."
+                pkill -P $$ tail
+              fi
+            done
+            echo "Deployment successful!"
+
