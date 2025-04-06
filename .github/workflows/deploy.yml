@@ -95,7 +95,7 @@ jobs:
             # Monitor the log line by line
             while read LINE; do
             echo "$LINE"
-            if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/inventory-service'"* ]]; then
+            if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/product-service'"* ]]; then
             echo "✅ Detected Tomcat startup — exiting log monitor"
             break
             fi
