@@ -93,22 +93,19 @@ jobs:
 
             echo "Setting execution permission..."
             chmod +x productStartUp.sh
+            ./productStartUp.sh
+            echo "Service started. Monitoring logs..."
 
-            echo "Starting service with nohup..."
-            nohup ./productStartUp.sh > app.log 2>&1 &
-
-            echo "Waiting for Tomcat to start..."
-            sleep 2
-            tail -f app.log &
-
+            # Start tail in background and capture its PID
+            tail -f nohup.out &
             TAIL_PID=$!
+
+            # Monitor the log line by line
             while read LINE; do
               echo "$LINE"
               if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/product-service'"* ]]; then
-                echo "✅ Tomcat started — stopping log stream (tail PID: $TAIL_PID)"
+                echo "✅ Detected Tomcat startup — killing tail (PID: $TAIL_PID)"
                 kill $TAIL_PID
                 break
               fi
-            done < <(tail -f app.log)
-
-            echo "🚀 Deployment successful!"
+            done < <(tail -f nohup.out)
