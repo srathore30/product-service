@@ -92,15 +92,11 @@ jobs:
             echo "Service started. Monitoring logs..."
             
             # Start tail in background and capture its PID
-            tail -f nohup.out &
-            TAIL_PID=$!
-            
             # Monitor the log line by line
             while read LINE; do
-              echo "$LINE"
-              if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/inventory-service'"* ]]; then
-                echo "✅ Detected Tomcat startup — killing tail (PID: $TAIL_PID)"
-                kill $TAIL_PID
-                break
-              fi
+            echo "$LINE"
+            if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/inventory-service'"* ]]; then
+            echo "✅ Detected Tomcat startup — exiting log monitor"
+            break
+            fi
             done < <(tail -f nohup.out)
