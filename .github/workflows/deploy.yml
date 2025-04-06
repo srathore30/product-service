@@ -91,7 +91,6 @@ jobs:
             ./productStartUp.sh
             echo "Service started. Monitoring logs..."
             
-            # Start tail in background and capture its PID
             # Monitor the log line by line
             while read LINE; do
             echo "$LINE"
