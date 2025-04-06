@@ -82,28 +82,23 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd ~/sfa-service/product-service/
-            echo "Checking if service is running on port 9093..."
             PID=$(sudo lsof -n -i:9093 | awk 'NR==2 {print $2}')
             if [ -n "$PID" ]; then
               echo "Killing running service with PID: $PID"
               sudo kill -9 $PID
-            else
-              echo "No service running on port 9093"
             fi
-
-            echo "Setting execution permission..."
             chmod +x productStartUp.sh
             ./productStartUp.sh
             echo "Service started. Monitoring logs..."
-
+            
             # Start tail in background and capture its PID
             tail -f nohup.out &
             TAIL_PID=$!
-
+            
             # Monitor the log line by line
             while read LINE; do
               echo "$LINE"
-              if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/product-service'"* ]]; then
+              if [[ "$LINE" == *"Tomcat started on port 9093 (http) with context path '/inventory-service'"* ]]; then
                 echo "✅ Detected Tomcat startup — killing tail (PID: $TAIL_PID)"
                 kill $TAIL_PID
                 break
