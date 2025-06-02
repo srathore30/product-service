@@ -12,7 +12,7 @@ pipeline {
         CREDENTIALS_ID = 'vps-ssh-credentials-id-credentialsId'
         REMOTE_SERVICE_NAME = 'product-service'
         JAR_NAME = 'product-0.0.1-SNAPSHOT.jar'
-        REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
+        REMOTE_PATH = "/root/sfa-service/product-service"
     }
 
     stages {
