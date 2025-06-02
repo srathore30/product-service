@@ -56,7 +56,7 @@ pipeline {
                         scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
                         echo "Copying startup script..."
-                        scp ./productStartUp.sh ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
+                        scp /tmp/productStartUp.sh ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
                         echo "Running deployment script on server..."
                         ssh ${env.VPS_USER}@${env.VPS_HOST} '
