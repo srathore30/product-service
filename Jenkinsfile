@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven-3.9.6'     // Make sure this Maven version is configured in Jenkins
-        jdk 'Java 17'
+        maven 'maven-3.9.6'     // Jenkins में configured होना चाहिए
+        jdk 'Java 17'           // Jenkins में configured होना चाहिए
     }
 
     environment {
@@ -13,6 +13,7 @@ pipeline {
         REMOTE_SERVICE_NAME = 'product-service'
         JAR_NAME = 'prouduct-0.0.1-SNAPSHOT.jar'
         REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
+        STARTUP_SCRIPT = "/tmp/productStartUp.sh"
     }
 
     stages {
@@ -42,25 +43,29 @@ pipeline {
 
         stage('Add Host Key') {
             steps {
-                sh "mkdir -p ~/.ssh"
-                sh "ssh-keyscan -H ${env.VPS_HOST} >> ~/.ssh/known_hosts"
+                sh '''
+                    mkdir -p ~/.ssh
+                    ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+                '''
             }
         }
 
         stage('Prepare Start Script') {
             steps {
-                sh '''
-                    echo "#!/bin/bash
-                    echo Starting Product Service...
-                    nohup java -jar prouduct-0.0.1-SNAPSHOT.jar > nohup.out 2>&1 &
-                    echo Service Started" > /tmp/productStartUp.sh
+                sh """
+                    cat << 'EOF' > ${env.STARTUP_SCRIPT}
+#!/bin/bash
+echo "Stopping old service..."
+pkill -f ${env.JAR_NAME}
 
-                    chmod +x /tmp/productStartUp.sh
-                '''
+echo "Starting new service..."
+nohup java -jar ${env.JAR_NAME} > output.log 2>&1 &
+echo "Service started successfully!"
+EOF
+                    chmod +x ${env.STARTUP_SCRIPT}
+                """
             }
         }
-
-
 
         stage('Deploy to VPS') {
             steps {
@@ -70,20 +75,14 @@ pipeline {
                         scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
                         echo "Copying startup script..."
-                        scp /tmp/productStartUp.sh ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
+                        scp ${env.STARTUP_SCRIPT} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
                         echo "Running deployment script on server..."
                         ssh ${env.VPS_USER}@${env.VPS_HOST} '
                             set -e
                             cd ${REMOTE_PATH}
-                            echo "Removing old nohup.out if exists..."
-                            rm -f nohup.out
-
-                            echo "Starting service..."
                             chmod +x productStartUp.sh
                             ./productStartUp.sh
-
-                            echo "Deployment done!"
                         '
                     """
                 }
