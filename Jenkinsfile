@@ -47,6 +47,13 @@ pipeline {
             }
         }
 
+        stage('Debug') {
+            steps {
+                sh 'ls -l target/'
+            }
+        }
+
+
         stage('Deploy to VPS') {
             steps {
                 sshagent([env.CREDENTIALS_ID]) {
