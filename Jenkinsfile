@@ -71,34 +71,20 @@ EOF
             steps {
                 sshagent([env.CREDENTIALS_ID]) {
                     sh """
-                                    echo "Copying JAR..."
-                                    scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
+                        echo "Copying JAR..."
+                        scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
-                                    echo "Copying startup script..."
-                                    scp ${env.STARTUP_SCRIPT} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
+                        echo "Copying startup script..."
+                        scp ${env.STARTUP_SCRIPT} ${env.VPS_USER}@${env.VPS_HOST}:${env.REMOTE_PATH}/
 
-                                    echo "Running deployment script on server..."
-                                    ssh ${env.VPS_USER}@${env.VPS_HOST} "
-                                        set -e
-                                        cd ${REMOTE_PATH}
-                                        echo 'Current directory: ' \$(pwd)
-                                        echo 'Files here:'
-                                        ls -l
-
-                                        # Kill old process
-                                        pkill -f ${JAR_NAME} || echo 'No old process found'
-
-                                        # Give some time to release port
-                                        sleep 2
-
-                                        # Start new process
-                                        chmod +x productStartUp.sh
-                                        ./productStartUp.sh
-
-                                        # Check process list
-                                        ps -ef | grep java | grep ${JAR_NAME}
-                                    "
-                                """
+                        echo "Running deployment script on server..."
+                        ssh ${env.VPS_USER}@${env.VPS_HOST} '
+                            set -e
+                            cd ${REMOTE_PATH}
+                            chmod +x productStartUp.sh
+                            ./productStartUp.sh
+                        '
+                    """
                 }
             }
         }
