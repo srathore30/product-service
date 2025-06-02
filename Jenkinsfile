@@ -11,7 +11,7 @@ pipeline {
         VPS_USER = 'root'
         CREDENTIALS_ID = 'vps-ssh-credentials-id-credentialsId'
         REMOTE_SERVICE_NAME = 'product-service'
-        JAR_NAME = 'product-0.0.1-SNAPSHOT.jar'
+        JAR_NAME = 'prouduct-0.0.1-SNAPSHOT.jar'
         REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
     }
 
@@ -39,25 +39,6 @@ pipeline {
                 sh 'mvn test'
             }
         }
-
-         stage('Verify JAR') {
-                    steps {
-                        sh 'ls -l target/'
-                    }
-                }
-
-                stage('Find JAR') {
-                    steps {
-                        script {
-                            def jarFiles = sh(script: "ls target/*.jar", returnStdout: true).trim().split("\n")
-                            if (jarFiles.size() == 0) {
-                                error "No JAR files found in target directory!"
-                            }
-                            env.JAR_NAME = jarFiles[0].replace("target/", "")
-                            echo "Detected JAR file: ${env.JAR_NAME}"
-                        }
-                    }
-                }
 
         stage('Add Host Key') {
             steps {
