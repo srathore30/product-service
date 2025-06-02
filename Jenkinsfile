@@ -40,6 +40,25 @@ pipeline {
             }
         }
 
+         stage('Verify JAR') {
+                    steps {
+                        sh 'ls -l target/'
+                    }
+                }
+
+                stage('Find JAR') {
+                    steps {
+                        script {
+                            def jarFiles = sh(script: "ls target/*.jar", returnStdout: true).trim().split("\n")
+                            if (jarFiles.size() == 0) {
+                                error "No JAR files found in target directory!"
+                            }
+                            env.JAR_NAME = jarFiles[0].replace("target/", "")
+                            echo "Detected JAR file: ${env.JAR_NAME}"
+                        }
+                    }
+                }
+
         stage('Add Host Key') {
             steps {
                 sh "mkdir -p ~/.ssh"
