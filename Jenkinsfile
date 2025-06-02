@@ -12,7 +12,7 @@ pipeline {
         CREDENTIALS_ID = 'vps-ssh-credentials-id-credentialsId'
         REMOTE_SERVICE_NAME = 'product-service'
         JAR_NAME = 'product-0.0.1-SNAPSHOT.jar'
-        REMOTE_PATH = "/root/sfa-service/product-service"
+        REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
     }
 
     stages {
@@ -44,12 +44,6 @@ pipeline {
             steps {
                 sh "mkdir -p ~/.ssh"
                 sh "ssh-keyscan -H ${env.VPS_HOST} >> ~/.ssh/known_hosts"
-            }
-        }
-
-        stage('Debug') {
-            steps {
-                sh 'ls -l target/'
             }
         }
 
