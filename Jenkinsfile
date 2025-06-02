@@ -47,6 +47,20 @@ pipeline {
             }
         }
 
+        stage('Prepare Start Script') {
+            steps {
+                sh '''
+                    echo "#!/bin/bash
+                    echo Starting Product Service...
+                    nohup java -jar prouduct-0.0.1-SNAPSHOT.jar > nohup.out 2>&1 &
+                    echo Service Started" > /tmp/productStartUp.sh
+
+                    chmod +x /tmp/productStartUp.sh
+                '''
+            }
+        }
+
+
 
         stage('Deploy to VPS') {
             steps {
