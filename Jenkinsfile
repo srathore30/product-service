@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven-3.9.6'     // Jenkins में configured होना चाहिए
-        jdk 'Java 17'           // Jenkins में configured होना चाहिए
+        maven 'maven-3.9.6'
+        jdk 'Java 17'
     }
 
     environment {
