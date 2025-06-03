@@ -72,8 +72,8 @@ fi
 echo "[INFO] Starting new JAR..."
 nohup java -jar ${env.JAR_NAME} > nohup.out 2>&1 &
 echo "[INFO] New service started successfully!"
-
 EOF
+
                     chmod +x ${env.STARTUP_SCRIPT}
                 """
             }
@@ -83,16 +83,16 @@ EOF
             steps {
                 sshagent([env.CREDENTIALS_ID]) {
                     sh """
-                        echo "[INFO] Creating temporary directory on VPS..."
+                        echo "[INFO] Creating temp directory..."
                         ssh ${env.VPS_USER}@${env.VPS_HOST} 'mkdir -p ${TEMP_PATH}'
 
-                        echo "[INFO] Copying new JAR to temporary folder..."
+                        echo "[INFO] Copying JAR to temp..."
                         scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${TEMP_PATH}/
 
-                        echo "[INFO] Copying startup script to VPS..."
+                        echo "[INFO] Copying startup script..."
                         scp ${env.STARTUP_SCRIPT} ${env.VPS_USER}@${env.VPS_HOST}:${REMOTE_PATH}/
 
-                        echo "[INFO] Executing deployment on VPS..."
+                        echo "[INFO] Deploying on VPS..."
                         ssh ${env.VPS_USER}@${env.VPS_HOST} '
                             set -e
                             cd ${REMOTE_PATH}
@@ -100,17 +100,17 @@ EOF
                             echo "[INFO] Removing old JAR..."
                             rm -f *.jar
 
-                            echo "[INFO] Moving new JAR from temp to service directory..."
-                            mv ${TEMP_PATH}/*.jar ${REMOTE_PATH}/
+                            echo "[INFO] Copying new JAR from temp to service folder..."
+                            cp ${TEMP_PATH}/${JAR_NAME} ${REMOTE_PATH}/
 
-                            echo "[INFO] Cleaning up temporary folder..."
+                            echo "[INFO] Cleaning up temp..."
                             rm -rf ${TEMP_PATH}
 
-                            echo "[INFO] Executing startup script..."
+                            echo "[INFO] Starting service..."
                             chmod +x productStartUp.sh
                             ./productStartUp.sh
 
-                            echo "[INFO] Deployment completed."
+                            echo "[INFO] Deployment complete."
                         '
                     """
                 }
