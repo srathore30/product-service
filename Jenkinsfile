@@ -11,7 +11,7 @@ pipeline {
         VPS_USER = 'root'
         CREDENTIALS_ID = 'vps-ssh-credentials-id-credentialsId'
         REMOTE_SERVICE_NAME = 'product-service'
-        JAR_NAME = 'prouduct-0.0.1-SNAPSHOT.jar'
+        JAR_NAME = 'product-0.0.1-SNAPSHOT.jar'
         REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
         STARTUP_SCRIPT = "/tmp/productStartUp.sh"
     }
