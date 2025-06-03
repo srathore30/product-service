@@ -74,7 +74,7 @@ public class ProductController {
         return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/demo")
+    @GetMapping("/demo1")
     public void demo(){
 
     }
