@@ -74,8 +74,10 @@ public class ProductController {
         return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/hello")
-    public String helloWorld() {
-        return "null";
+    @GetMapping("/new/{id}")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<ProductRes> getProductByIdd(@PathVariable Long id) {
+        ProductRes productRes = productService.getProductByIdd(id);
+        return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
 }

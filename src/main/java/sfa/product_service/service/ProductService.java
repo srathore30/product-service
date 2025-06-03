@@ -288,4 +288,16 @@ public class ProductService {
         log.info("Generating pre-signed URL");
         return baseUrl+key;
     }
+
+    public ProductRes getProductByIdd(Long id) {
+        Optional<ProductMasterEntity> optionalProductMasterEntity = productMasterRepo.findById(id);
+        if (optionalProductMasterEntity.isEmpty()) {
+            throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT_NOT_FOUND.getErrorMessage());
+        }
+        Optional<ProductPriceEntity> optionalProductPriceEntity = productPriceRepo.findByProductId(optionalProductMasterEntity.get().getId());
+        if (optionalProductPriceEntity.isEmpty()) {
+            throw new NoSuchElementFoundException(ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorCode(), ApiErrorCodes.PRODUCT__PRICE_NOT_FOUND.getErrorMessage());
+        }
+        return mapToProductRes(optionalProductPriceEntity.get(), optionalProductMasterEntity.get());
+    }
 }
