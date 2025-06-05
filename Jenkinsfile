@@ -79,23 +79,6 @@ EOF
             }
         }
 
-        stage('Upload to WinSCP Folder') {
-            steps {
-                sshagent(['vps-ssh-credentials-id-credentialsId']) {
-                    sh """
-                        echo "[INFO] Creating target directory if it doesn't exist..."
-                        ssh root@195.35.22.253 'mkdir -p /home/ubuntu/sfa-service/product-service'
-
-                        echo "[INFO] Uploading JAR to WinSCP-accessible path..."
-                        scp target/prouduct-0.0.1-SNAPSHOT.jar root@195.35.22.253:/home/ubuntu/sfa-service/product-service/
-
-                        echo "[INFO] Upload complete. You can check in WinSCP."
-                    """
-                }
-            }
-        }
-
-
         stage('Deploy to VPS') {
             steps {
                 sshagent([env.CREDENTIALS_ID]) {
