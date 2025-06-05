@@ -103,9 +103,6 @@ EOF
                             echo "[INFO] Copying new JAR from temp to service folder..."
                             cp ${TEMP_PATH}/${JAR_NAME} ${REMOTE_PATH}/
 
-                            echo "[INFO] Also copying JAR to secondary SCP folder (e.g., Windows accessible path)..."
-                            cp ${TEMP_PATH}/${JAR_NAME} /home/ubuntu/win-scp-folder/
-
                             echo "[INFO] Cleaning up temp..."
                             rm -rf ${TEMP_PATH}
 
