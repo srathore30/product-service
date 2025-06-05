@@ -116,5 +116,19 @@ EOF
                 }
             }
         }
+
+        stage('Upload for WinSCP Access') {
+                steps {
+                    sshagent(['vps-ssh-credentials-id-credentialsId']) {
+                        sh """
+                            echo "[INFO] Creating WinSCP folder if needed..."
+                            ssh root@195.35.22.253 'mkdir -p /root/sfa-service/product-service'
+
+                            echo "[INFO] Uploading final JAR to WinSCP path..."
+                            scp target/prouduct-0.0.1-SNAPSHOT.jar root@195.35.22.253:/root/sfa-service/product-service/
+                        """
+                    }
+                }
+            }
     }
 }
