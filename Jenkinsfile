@@ -14,6 +14,7 @@ pipeline {
         REMOTE_PATH = "/home/ubuntu/sfa-service/product-service"
         TEMP_PATH = "/home/ubuntu/sfa-service/product-service/temp"
         STARTUP_SCRIPT = "/tmp/productStartUp.sh"
+        WINSCP_PATH = "/root/sfa-service/product-service"
     }
 
     stages {
@@ -122,10 +123,10 @@ EOF
                     sshagent(['vps-ssh-credentials-id-credentialsId']) {
                         sh """
                             echo "[INFO] Creating WinSCP folder if needed..."
-                            ssh root@195.35.22.253 'mkdir -p /root/sfa-service/product-service'
+                            ssh ${env.VPS_USER}@${env.VPS_HOST} 'mkdir -p ${env.WINSCP_PATH}'
 
                             echo "[INFO] Uploading final JAR to WinSCP path..."
-                            scp target/prouduct-0.0.1-SNAPSHOT.jar root@195.35.22.253:/root/sfa-service/product-service/
+                            scp target/${env.JAR_NAME} ${env.VPS_USER}@${env.VPS_HOST}:${env.WINSCP_PATH}/
                         """
                     }
                 }
