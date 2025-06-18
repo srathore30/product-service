@@ -28,6 +28,13 @@ public class ProductController {
         return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
     }
 
+    @PostMapping("/createProductInBulk")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<List<ProductCreateRes>> createProductInBulk(@RequestBody List<ProductReq> productReqList) {
+        List<ProductCreateRes> productCreateRes = productService.createProductInBulk(productReqList);
+        return new ResponseEntity<>(productCreateRes, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{id}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<ProductRes> getProductById(@PathVariable Long id) {

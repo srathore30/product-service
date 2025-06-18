@@ -5,7 +5,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import sfa.product_service.constant.ApiErrorCodes;
 import sfa.product_service.constant.Status;
@@ -68,6 +68,26 @@ public class ProductService {
         log.info("Product is ready to save on price repo");
         ProductPriceEntity priceEntity = productPriceRepo.save(productPriceEntity);
         return new ProductCreateRes(savedProduct.getId(), savedProduct.getImageUrl(),savedProduct.getBundleSize(), "Product created successfully");
+    }
+
+    @Transactional
+    public List<ProductCreateRes>
+    createProductInBulk(List<ProductReq> requestList) {
+        List<ProductCreateRes> productCreateResList = new ArrayList<>();
+        for(ProductReq request : requestList) {
+            log.info("Creating product: {}", request);
+            log.info("Product map to entity");
+            ProductMasterEntity productMasterEntity = mapToProductMasterEntity(request);
+            log.info("Product price map to entity");
+            ProductPriceEntity productPriceEntity = mapToProductPriceEntity(request);
+            log.info("Product is ready to save on product master repo");
+            ProductMasterEntity savedProduct = productMasterRepo.save(productMasterEntity);
+            productPriceEntity.setProductId(savedProduct.getId());
+            log.info("Product is ready to save on price repo");
+            ProductPriceEntity priceEntity = productPriceRepo.save(productPriceEntity);
+            productCreateResList.add(new ProductCreateRes(priceEntity.getId(), savedProduct.getImageUrl(), savedProduct.getBundleSize(), "Product created successfully"));
+        }
+        return productCreateResList;
     }
 
     public ProductRes getProductById(Long id) {
