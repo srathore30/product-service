@@ -3,7 +3,7 @@ name: Deploy Product Service to VPS
 on:
   push:
     branches:
-      - develop
+      - fixer
 
 jobs:
   build:
