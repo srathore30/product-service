@@ -257,6 +257,96 @@ public class ProductService {
         }
     }
 
+    public PaginatedResp<ProductRes> getAllProductByName(
+            String name, int page, int pageSize, String sortBy, String sortDirection) {
+
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidInputException(
+                    ApiErrorCodes.INVALID_INPUT.getErrorCode(),
+                    ApiErrorCodes.INVALID_INPUT.getErrorMessage()
+            );
+        }
+
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+
+        Page<ProductMasterEntity> productMasterEntities =
+                productMasterRepo.findByName(name, pageable);
+
+        List<ProductRes> productResList = new ArrayList<>();
+
+        productMasterEntities.getContent().forEach(productMasterEntity -> {
+            if (productMasterEntity.getStatus() == Status.ACTIVE) {
+                Optional<ProductPriceEntity> optionalProductPriceEntity =
+                        productPriceRepo.findByProductId(productMasterEntity.getId());
+
+                if (optionalProductPriceEntity.isPresent()
+                        && optionalProductPriceEntity.get().getStatus() == Status.ACTIVE) {
+
+                    ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
+                    ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
+                    productResList.add(productRes);
+                }
+            }
+        });
+
+        return new PaginatedResp<>(
+                productMasterEntities.getTotalElements(),
+                productMasterEntities.getTotalPages(),
+                productMasterEntities.getNumber(),
+                productResList
+        );
+    }
+
+    public PaginatedResp<ProductRes> getAllProductBySku(
+            String sku, int page, int pageSize, String sortBy, String sortDirection) {
+
+        if (sku == null || sku.trim().isEmpty()) {
+            throw new InvalidInputException(
+                    ApiErrorCodes.INVALID_INPUT.getErrorCode(),
+                    ApiErrorCodes.INVALID_INPUT.getErrorMessage()
+            );
+        }
+
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
+
+        Page<ProductMasterEntity> productMasterEntities =
+                productMasterRepo.findBySku(sku, pageable);
+
+        List<ProductRes> productResList = new ArrayList<>();
+
+        productMasterEntities.getContent().forEach(productMasterEntity -> {
+            if (productMasterEntity.getStatus() == Status.ACTIVE) {
+                Optional<ProductPriceEntity> optionalProductPriceEntity =
+                        productPriceRepo.findByProductId(productMasterEntity.getId());
+
+                if (optionalProductPriceEntity.isPresent()
+                        && optionalProductPriceEntity.get().getStatus() == Status.ACTIVE) {
+
+                    ProductPriceEntity productPriceEntity = optionalProductPriceEntity.get();
+                    ProductRes productRes = mapToProductRes(productPriceEntity, productMasterEntity);
+                    productResList.add(productRes);
+                }
+            }
+        });
+
+        return new PaginatedResp<>(
+                productMasterEntities.getTotalElements(),
+                productMasterEntities.getTotalPages(),
+                productMasterEntities.getNumber(),
+                productResList
+        );
+    }
+
+
+
     //Image Upload for product
     public String uploadBase64File(String base64Url) {
         log.info("Decoded base64 file");
