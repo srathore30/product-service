@@ -75,6 +75,35 @@ public class ProductController {
         return new ResponseEntity<>(productService.getAllProduct(page, pageSize, sortBy, sortDirection), HttpStatus.OK);
     }
 
+    @GetMapping("/getAllProductsByName")
+    @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
+    public ResponseEntity<PaginatedResp<ProductRes>> getAllProductsByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+
+        PaginatedResp<ProductRes> response =
+                productService.getAllProductByName(name, page, pageSize, sortBy, sortDirection);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getAllProductBySku")
+    public ResponseEntity<PaginatedResp<ProductRes>> getAllProductBySku(
+            @RequestParam String sku,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+
+        PaginatedResp<ProductRes> response = productService.getAllProductBySku(
+                sku, page, pageSize, sortBy, sortDirection);
+
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<String> deleteProduct(@RequestParam String type, @PathVariable Long id) {
