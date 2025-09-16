@@ -41,6 +41,14 @@ public class ProductController {
         ProductRes productRes = productService.getProductById(id);
         return new ResponseEntity<>(productRes, HttpStatus.OK);
     }
+
+    @PostMapping("/getAllProductByIds")
+    public ResponseEntity<List<ProductRes>> getAllProductByIds(@RequestBody List<Long> productIds) {
+        List<ProductRes> productRes = productService.getAllProductByIds(productIds);
+        return new ResponseEntity<>(productRes, HttpStatus.OK);
+    }
+
+
     @PostMapping("/getAllProductByIdList")
     @UserAuthorization(allowedRoles = {UserRole.ClientFMCG, UserRole.Create_Manager, UserRole.Edit_Manager, UserRole.Delete_Manager, UserRole.View_Manager, UserRole.Manager,UserRole.Reporting_Manager, UserRole.Super_Admin})
     public ResponseEntity<List<ProductRes>> getAllProductByIdList(@RequestBody List<Long> productList) {

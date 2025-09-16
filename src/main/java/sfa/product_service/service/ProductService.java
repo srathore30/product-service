@@ -121,6 +121,11 @@ public class ProductService {
         return new ProductCreateRes(productPriceEntity.getProductId(), productMasterEntity.getImageUrl(), productMasterEntity.getBundleSize(), "Product update successfully");
     }
 
+    public List<ProductRes> getAllProductByIds(List<Long> productIds){
+        List<ProductMasterEntity> productMasterEntities = productMasterRepo.findAllById(productIds);
+        return productMasterEntities.stream().filter(productMaster -> productMaster.getStatus() == Status.ACTIVE).map(this::mapToProductResFromProductMaster).toList();
+    }
+
     private ProductMasterEntity mapToProductMasterEntity(ProductReq request) {
         Optional<ProductMasterEntity> optionalProductMasterEntity = productMasterRepo.findByProductCode(request.getProductCode());
         if(optionalProductMasterEntity.isPresent()){
@@ -175,6 +180,17 @@ public class ProductService {
         productRes.setSku(productMaster.getSku());
         productRes.setUnitOfMeasurement(productMaster.getUnitMeasurement());
         productRes.setProductPriceRes(mapToProductPriceRes(productPrice));
+        productRes.setBundleSize(productMaster.getBundleSize());
+        productRes.setImageUrl(productMaster.getImageUrl());
+        return productRes;
+    }
+    private ProductRes mapToProductResFromProductMaster(ProductMasterEntity productMaster){
+        ProductRes productRes = new ProductRes();
+        productRes.setName(productMaster.getName());
+        productRes.setProductId(productMaster.getId());
+        productRes.setProductCode(productMaster.getProductCode());
+        productRes.setSku(productMaster.getSku());
+        productRes.setUnitOfMeasurement(productMaster.getUnitMeasurement());
         productRes.setBundleSize(productMaster.getBundleSize());
         productRes.setImageUrl(productMaster.getImageUrl());
         return productRes;
